@@ -142,7 +142,7 @@ fn_formatProdTotPrice <- function(Vector.In){
 
 ####################################################
 fn_formatProdQty <- function(Vector.In){
-  Vector.Out <- as.numeric(Vector.In)
+  Vector.Out <- na.is.zero(as.numeric(Vector.In))
   return(Vector.Out)
 }
 ####################################################
@@ -156,79 +156,85 @@ fn_formatHHSize <- function(Vector.In){
 
 ####################################################
 fn_formatProdCategory <- function(Vector.In){
-  Vector.Out <- as.factor(as.numeric(Vector.In))
-  levels(Vector.Out) <- c('Apparel',
-                          'Shoes',
-                          'Accessories',
-                          'Jewelry & Watches',
-                          'Other Apparel Items',
-                          'Home Furniture',
-                          'Home Appliances',
-                          'Tools & Equipment',
-                          'Kitchen & Dining',
-                          'Bed & Bath',
-                          'Garden & Patio',
-                          'Pet Supplies',
-                          'Food & Beverage',
-                          'Automotive Accessories',
-                          'Sport & Fitness',
-                          'Health & Beauty',
-                          'Art & Collectibles',
-                          'Tobacco Products',
-                          'Baby Supplies',
-                          'Other Home & Living Items',
-                          'Books & Magazines',
-                          'Music',
-                          'Movies & Videos',
-                          'Other BMV',
-                          'Desktop Computers',
-                          'Laptop Computers',
-                          'Handhelds, PDAs & Portable Devices',
-                          'Printers, Monitors & Peripherals',
-                          'Computer Software (excl',
-                          'Other Computer Supplies',
-                          'Audio & Video Equipment',
-                          'Cameras & Equipment',
-                          'Mobile Phones & Plans',
-                          'Other Electronics & Supplies',
-                          'PC Video Games',
-                          'Console Video Games',
-                          'Video Game Consoles & Accessories',
-                          'Business Machines',
-                          'Office Furniture',
-                          'Office Supplies',
-                          'Movie Tickets',
-                          'Event Tickets',
-                          'Air Travel',
-                          'Hotel Reservations',
-                          'Car Rental',
-                          'Travel Packages',
-                          'Other Travel',
-                          'Online Content Sales',
-                          'Online Service Subscriptions',
-                          'Personals & Dating',
-                          'Photo Printing Services',
-                          'Shipping Services',
-                          'Other Services',
-                          'Toys & Games (excl',
-                          'Arts, Crafts & Party Supplies',
-                          'Other Toy & Game Items',
-                          'Flowers',
-                          'Greetings',
-                          'Gift Certificates & Coupons',
-                          'Other Flower & Gift Items',
-                          'Unclassified')  
+  Vector.Out <- na.is.zero(as.numeric(Vector.In))
   return(Vector.Out)
 }
-####################################################
 
+fn_formatProdCategory.F <- function(Vector.In){
+  Vector1 <- as.character(Vector.In)
+  Vector2 <- sapply(X=Vector1, FUN=function(Val){if(Val=='1') 'Apparel'
+                                                 else if(Val=='2') 'Shoes'
+                                                 else if(Val=='3') 'Accessories'
+                                                 else if(Val=='4') 'Jewelry & Watches'
+                                                 else if(Val=='5') 'Other Apparel Items'
+                                                 else if(Val=='6') 'Home Furniture'
+                                                 else if(Val=='7') 'Home Appliances'
+                                                 else if(Val=='8') 'Tools & Equipment'
+                                                 else if(Val=='9') 'Kitchen & Dining'
+                                                 else if(Val=='10') 'Bed & Bath'
+                                                 else if(Val=='11') 'Garden & Patio'
+                                                 else if(Val=='12') 'Pet Supplies'
+                                                 else if(Val=='13') 'Food & Beverage'
+                                                 else if(Val=='14') 'Automotive Accessories'
+                                                 else if(Val=='15') 'Sport & Fitness'
+                                                 else if(Val=='16') 'Health & Beauty'    
+                                                 else if(Val=='17') 'Art & Collectibles'
+                                                 else if(Val=='18') 'Tobacco Products'
+                                                 else if(Val=='19') 'Baby Supplies'
+                                                 else if(Val=='20') 'Other Home & Living Items'
+                                                 else if(Val=='21') 'Books & Magazines'
+                                                 else if(Val=='22') 'Music'
+                                                 else if(Val=='23') 'Movies & Videos'
+                                                 else if(Val=='24') 'Other BMV'
+                                                 else if(Val=='25') 'Desktop Computers'
+                                                 else if(Val=='26') 'Laptop Computers'
+                                                 else if(Val=='27') 'Handhelds, PDAs & Portable Devices'
+                                                 else if(Val=='28') 'Printers, Monitors & Peripherals'
+                                                 else if(Val=='29') 'Computer Software (excl'
+                                                 else if(Val=='30') 'Other Computer Supplies'
+                                                 else if(Val=='31') 'Audio & Video Equipment'
+                                                 else if(Val=='32') 'Cameras & Equipment'
+                                                 else if(Val=='33') 'Mobile Phones & Plans'
+                                                 else if(Val=='34') 'Other Electronics & Supplies'
+                                                 else if(Val=='35') 'PC Video Games'
+                                                 else if(Val=='36') 'Console Video Games'
+                                                 else if(Val=='37') 'Video Game Consoles & Accessories'
+                                                 else if(Val=='38') 'Business Machines'
+                                                 else if(Val=='39') 'Office Furniture'
+                                                 else if(Val=='40') 'Office Supplies'
+                                                 else if(Val=='41') 'Movie Tickets'
+                                                 else if(Val=='42') 'Event Tickets'
+                                                 else if(Val=='43') 'Air Travel'
+                                                 else if(Val=='44') 'Hotel Reservations'
+                                                 else if(Val=='45') 'Car Rental'
+                                                 else if(Val=='46') 'Travel Packages'
+                                                 else if(Val=='47') 'Other Travel'
+                                                 else if(Val=='48') 'Online Content Sales'
+                                                 else if(Val=='49') 'Online Service Subscriptions'
+                                                 else if(Val=='50') 'Personals & Dating'
+                                                 else if(Val=='51') 'Photo Printing Services'
+                                                 else if(Val=='52') 'Shipping Services'
+                                                 else if(Val=='53') 'Other Services'
+                                                 else if(Val=='54') 'Toys & Games (excl PC Games)'
+                                                 else if(Val=='55') 'Arts, Crafts & Party Supplies'
+                                                 else if(Val=='56') 'Other Toy & Game Items'
+                                                 else if(Val=='57') 'Flowers'
+                                                 else if(Val=='58') 'Greetings'
+                                                 else if(Val=='59') 'Gift Certificates & Coupons'
+                                                 else if(Val=='60') 'Other Flower & Gift Items'
+                                                 else if(Val=='99') 'Unclassified'
+                                                 else if(Val=='0') 'No Purchase'})
+  return(as.character(Vector2))
+}
+####################################################
+  
 ####################################################
 fn_formatAllData <- function(Data){
   Data$racial_background <- try(fn_formatRacialBackground(Vector.In = Data$racial_background))
   Data$household_income <- try(fn_formatHHIncome(Vector.In = Data$household_income))
   Data$household_size <- try(fn_formatHHSize(Vector.In = Data$household_size))
   Data$event_date <- try(fn_formatEventDate(Vector.In = Data$event_date))
-  Data$event_time <- try(fn_formatEventDate(Vector.In = Data$event_time))
+  Data$event_time <- try(fn_formatEventTime(Vector.In = Data$event_time))
   Data$children <- try(fn_formatChildren(Vector.In = Data$children))
   Data$census_region <- try(fn_formatCensus(Vector.In = Data$census_region))
   Data$hoh_oldest_age <- try(fn_formatHHOldestAge(Vector.In = Data$hoh_oldest_age))
@@ -261,6 +267,10 @@ fn_getColumnNames <- function(FilePrefix='janfeb', DataPath){
 } 
 #################################################### 
 
+#################################################### 
+## This function prepares data for Cluster        ##
+## analysis                                       ##
+#################################################### 
 fn_prepDataforCluster <- function(FilePrefix, FileIndex, DataPath, Colnames, Colnames.Keep){
   Data <- fn_readBigData(FilePrefix=FilePrefix, FileIndex=FileIndex, DataPath=DataPath, 
                          Colnames=Colnames, Colnames.Keep=Colnames.Keep, Unique=FALSE)
@@ -283,3 +293,17 @@ fn_prepDataforCluster <- function(FilePrefix, FileIndex, DataPath, Colnames, Col
   Data2 <- merge(Data1, unique(Data[,Colnames.2]))
   return(Data2)  
 }
+
+#################################################### 
+## This function returns data of customers that   ##
+## have made at least one travel related purchase ##
+#################################################### 
+fn_getTravelPurchasers <- function(FilePrefix, FileIndex, DataPath, Colnames, 
+                                   Colnames.Keep, Purchasers.Travel){
+  Data <- fn_readBigData(FilePrefix=FilePrefix, FileIndex=FileIndex, DataPath=DataPath, 
+                         Colnames=Colnames, Colnames.Keep=Colnames.Keep, Unique=FALSE)
+  Data1 <- Data[Data$machine_id %in% unique(Purchasers.Travel$machine_id),]
+  Data1 <- fn_formatAllData(Data=Data1)
+  return(Data1)
+}
+
