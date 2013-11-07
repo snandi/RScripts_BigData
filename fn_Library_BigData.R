@@ -121,7 +121,7 @@ fn_formatPagesViewed <- function(Vector.In){
 
 ####################################################
 fn_formatDuration <- function(Vector.In){
-  Vector.Out <- as.numeric(Vector.In)
+  Vector.Out <- na.is.zero(as.numeric(Vector.In))
   return(Vector.Out)
 }
 ####################################################
@@ -162,7 +162,8 @@ fn_formatProdCategory <- function(Vector.In){
 
 fn_formatProdCategory.F <- function(Vector.In){
   Vector1 <- as.character(Vector.In)
-  Vector2 <- sapply(X=Vector1, FUN=function(Val){if(Val=='1') 'Apparel'
+  Vector2 <- sapply(X=Vector1, FUN=function(Val){if(Val=='0') 'No Purchase'
+                                                 else if(Val=='1') 'Apparel'
                                                  else if(Val=='2') 'Shoes'
                                                  else if(Val=='3') 'Accessories'
                                                  else if(Val=='4') 'Jewelry & Watches'
@@ -293,6 +294,7 @@ fn_prepDataforCluster <- function(FilePrefix, FileIndex, DataPath, Colnames, Col
   Data2 <- merge(Data1, unique(Data[,Colnames.2]))
   return(Data2)  
 }
+#################################################### 
 
 #################################################### 
 ## This function returns data of customers that   ##
@@ -306,4 +308,98 @@ fn_getTravelPurchasers <- function(FilePrefix, FileIndex, DataPath, Colnames,
   Data1 <- fn_formatAllData(Data=Data1)
   return(Data1)
 }
+#################################################### 
 
+#################################################### 
+## This function returns the websites related to  ##
+## search conducted for travel related purchases  ##
+#################################################### 
+fn_getSearchSites <- function(BigData, category_id){
+  Data.Trans <- subset(x = BigData, prod_category_id %in% category_id)
+  Data.Trans <- unique(Data.Trans[,c('machine_id', 'event_date')])
+  ## This data contain dates of transactions
+  
+  for(machine in Data.Trans$machine_id){
+    NewRow <- subset(Data.Trans, machine_id == machine)
+    NewRow$event_date <- NewRow$event_date - 1
+    Data.Trans <- rbind(Data.Trans, NewRow)
+  }
+  
+  Data.Trans <- Data.Trans[order(Data.Trans$machine_id, Data.Trans$event_date), ]
+  
+  Data.Trans$Search <- 1
+  
+  Data3 <- merge(x = BigData, y = Data.Trans, by = c('machine_id', 'event_date'), all.x = T, all.y = F)
+  Data3$Search <- na.is.zero(Data3$Search)
+  
+  Websites_Category <- Data3[Data3$Search==1,'domain_name']
+  Search_Category <- table(Websites_Category)
+  Search_Category <- sort(Search_Category, decreasing=T)
+  return(Search_Category)
+} 
+#################################################### 
+
+fn_getPurchaseSites <- function(Data, category){
+  Data1 <- subset(x=Data, prod_category == category)
+  Data1 <- Data1[,c('prod_category', 'domain_name')]
+  Table_Category <- table(subset(x=Data1, prod_category==category)$domain_name)
+  Table_Category <- sort(Table_Category, decreasing=T)
+  return(Table_Category)  
+}
+
+#################################################### 
+## This function returns the hotel data including ##
+## ratings info, filled in by Yu Chen             ##
+#################################################### 
+fn_returnHotelRatings <- function(filename='HotelDetails_v3_Nandi.csv'){
+  Filename <- paste(OutputDataPath, filename, sep='')
+  Data <- read.table(file=Filename, header=TRUE, sep=',', row.names=NULL,
+                               skip=0, quote='', stringsAsFactors=FALSE,
+                               fill=TRUE, comment.char='')
+  Data$event_date <- try(fn_formatEventDate(Vector.In = Data$event_date))
+  Data$event_time <- try(fn_formatEventTime(Vector.In = Data$event_time))
+  Data$pages_viewed <- try(fn_formatPagesViewed(Vector.In = Data$pages_viewed))
+  Data$duration <- try(fn_formatDuration(Vector.In = Data$duration))
+  Data$prod_category_id <- try(fn_formatProdCategory(Vector.In = Data$prod_category_id))
+  Data$prod_qty <- try(fn_formatProdQty(Vector.In = Data$prod_qty))
+  Data$prod_totprice <- try(fn_formatProdTotPrice(Vector.In = Data$prod_totprice))
+  Data$basket_tot <- try(fn_formatBasketTot(Vector.In = Data$basket_tot))
+
+  Data$StartDate <- try(fn_formatEventDate(Vector.In = Data$StartDate))
+  Data$EndDate <- try(fn_formatEventDate(Vector.In = Data$EndDate))
+  Data$StarRating <- try(fn_formatDuration(Vector.In = Data$StarRating))
+  Data$IsWeekend <- try(fn_formatDuration(Vector.In = Data$IsWeekend))
+
+  return(Data)
+}
+
+#################################################### 
+## This function ESTimates the search parameters ##
+## for hotel related transactions                 ##
+#################################################### 
+fn_estHotelSearch <- function(RowIndex, RegData=RegData.Hotel, BrowseData=Data.Hotel, 
+                              NDaysBack=1){
+  ## BrData stands for Browsing data
+  RegData.Row <- RegData[RowIndex,]
+  McId <- RegData[RowIndex, 'machine_id']
+  TransactionDateTime <- as.POSIXct(paste(as.character(RegData[RowIndex, 'event_date']), 
+                                          as.character(RegData[RowIndex, 'event_time'])))
+  BrData <- subset(BrowseData, machine_id == McId)
+  BrData$Search_EndTime <- as.POSIXct(paste(as.character(BrData$event_date), 
+                                            as.character(BrData$event_time)))
+  
+  BrData <- subset(BrData, Search_EndTime <= TransactionDateTime)
+  Time2 <- TransactionDateTime - (NDaysBack*24*3600)
+  BrData <- subset(BrData, Search_EndTime >= Time2)
+  
+  BrData$Search_Ind <- BrData$domain_name %in% PurchaseSites_Hotel
+  BrData$Search_Duration <- BrData$Search_Ind * BrData$duration
+  BrData$Search_NumPages <- BrData$Search_Ind * BrData$pages_viewed
+  
+  RegData.Row['Search_Duration'] <- sum(BrData$Search_Duration)
+  RegData.Row['Search_NumPages'] <- sum(BrData$Search_NumPages)
+  RegData.Row['Search_NumWebsites'] <- sum(BrData$Search_Ind)
+  
+  rm(BrData)
+  return(RegData.Row)
+}

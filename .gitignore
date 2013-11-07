@@ -1,8 +1,10 @@
 <<<<<<< HEAD
 .Rproj.user
 .Rhistory
-.RData
+*.RData
 Data
+Data/*
+*.*~
 =======
 # History files
 .Rhistory

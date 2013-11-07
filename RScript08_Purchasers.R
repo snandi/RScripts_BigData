@@ -39,9 +39,9 @@ source(paste(FilePath, 'fn_Library_BigData.R', sep=''))
 ## Data Input                                     ##
 #################################################### 
 #setwd(DataPath)
-Colnames <- fn_getColumnNames(FilePrefix='janfeb', DataPath=DataPath)
+FilePrefix <- 'mayjune'
+Colnames <- fn_getColumnNames(FilePrefix=FilePrefix, DataPath=DataPath)
 Colnames.Keep <- c('machine_id', 'prod_category_id', 'prod_totprice')
-FilePrefix <- 'janfeb'
 
 Time1 <- Sys.time()
 ####################################################
@@ -51,8 +51,8 @@ NumCores <- 12   ## Number of cores to be used
 cl <- makeSOCKcluster(as.numeric(NumCores))
 registerDoSNOW(cl)
 
-Data <- foreach(Indices=1:32, .inorder=FALSE, .packages=MyAutoLoads, .combine=rbind) %dopar% 
-  fn_readBigData(FilePrefix='janfeb', FileIndex=Indices, DataPath=DataPath.Scratch, 
+Data <- foreach(Indices=1:28, .inorder=FALSE, .packages=MyAutoLoads, .combine=rbind) %dopar% 
+  fn_readBigData(FilePrefix=FilePrefix, FileIndex=Indices, DataPath=DataPath.Scratch, 
                  Colnames=Colnames, Colnames.Keep=Colnames.Keep, Unique=FALSE)
 
 stopCluster(cl)
