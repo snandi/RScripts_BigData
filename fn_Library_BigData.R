@@ -339,6 +339,7 @@ fn_getSearchSites <- function(BigData, category_id){
 } 
 #################################################### 
 
+#################################################### 
 fn_getPurchaseSites <- function(Data, category){
   Data1 <- subset(x=Data, prod_category == category)
   Data1 <- Data1[,c('prod_category', 'domain_name')]
@@ -346,6 +347,7 @@ fn_getPurchaseSites <- function(Data, category){
   Table_Category <- sort(Table_Category, decreasing=T)
   return(Table_Category)  
 }
+#################################################### 
 
 #################################################### 
 ## This function returns the hotel data including ##
@@ -372,9 +374,10 @@ fn_returnHotelRatings <- function(filename='HotelDetails_v3_Nandi.csv'){
 
   return(Data)
 }
+#################################################### 
 
 #################################################### 
-## This function ESTimates the search parameters ##
+## This function estimates the search parameters ##
 ## for hotel related transactions                 ##
 #################################################### 
 fn_estHotelSearch <- function(RowIndex, RegData=RegData.Hotel, BrowseData=Data.Hotel, 
@@ -402,4 +405,43 @@ fn_estHotelSearch <- function(RowIndex, RegData=RegData.Hotel, BrowseData=Data.H
   
   rm(BrData)
   return(RegData.Row)
+}
+#################################################### 
+
+#################################################### 
+## This function returns a dataframe of transact- ##
+## -ion websites of a particular category or mul- ##
+## -tiple categories. The two columns of its out- ##
+## -put are the website name and the number of    ##
+## transactions made at that website.             ##
+#################################################### 
+fn_getTransactionSites <- function(BigData, category_id, TransColname, dropWebsites){
+  Table <- table(subset(x=BigData, prod_category_id %in% category_id)$domain_name)
+  Table <- as.data.frame(Table, stringsAsFactors=FALSE)
+  names(Table) <- c('Website', TransColname)
+  Table <- rbind(Table, c('kayak.com', 0))
+  Table <- subset(Table, Website %in% (Website %w/o% dropWebsites))
+  return(Table)
+}
+#################################################### 
+
+fn_groupSearchActivity <- function(DatabyMC, BrowseWindow=4){
+  DatabyMC <- DatabyMC[order(DatabyMC$DateTime),]
+  DatabyMC$DateTime2 <- DatabyMC$DateTime
+  #DatabyMC$DateTime2 <- c(DatabyMC$DateTime[1], DatabyMC$DateTime[1:(length(DatabyMC$DateTime) - 1)])
+  DatabyMC$EventTimeGap_Min <- round(difftime(time1=DatabyMC$DateTime, time2=DatabyMC$DateTime2, units='mins'), 2)
+  
+  DatabyMC$SearchNum <- 1
+  if(nrow(DatabyMC) > 1){
+    DatabyMC$DateTime2 <- c(DatabyMC$DateTime[1], DatabyMC$DateTime[1:(length(DatabyMC$DateTime) - 1)])
+    DatabyMC$EventTimeGap_Min <- round(difftime(time1=DatabyMC$DateTime, time2=DatabyMC$DateTime2, units='mins'), 2)
+    for(i in 2:nrow(DatabyMC)){
+      if(DatabyMC$EventTimeGap_Min[i] > BrowseWindow*60){
+        DatabyMC$SearchNum[i] <- DatabyMC$SearchNum[i-1] + 1
+      } else{
+        DatabyMC$SearchNum[i] <- DatabyMC$SearchNum[i-1]
+      }
+    }
+  }
+  return(DatabyMC)
 }

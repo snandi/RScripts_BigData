@@ -45,10 +45,11 @@ load(Filename.In)
 # assign(x='RegData.Hotel', value=RegData1.Hotel, envir=.GlobalEnv)
 # rm(RegData1.Hotel)
 
-RegData <- RegData.Hotel.Price
+#RegData <- RegData.Hotel.Price
 #RegData <- RegData.Hotel.Rating
-#RegData <- RegData.Hotel
+RegData <- RegData.Hotel
 #RegData <- RegData[-1812,]
+
 
 cor(RegData[,c('Search_Duration', 'Search_NumPages', 'Search_NumWebsites')])
 summary(RegData$DaysInAdvance)
